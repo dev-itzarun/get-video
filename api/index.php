@@ -60,7 +60,7 @@ if ($user_message == "/start") {
     $message = urlencode($message_encode);
     file_get_contents("https://api.telegram.org/bot$token/sendMessage?chat_id=$user_id&text=$message&parse_mode=HTML&disable_web_page_preview=TRUE");
 } elseif ($user_message == "/howtouse") {
-    file_get_contents("https://api.telegram.org/bot$token/sendVideo?chat_id=$user_id&video=BAACAgUAAxkBAAOsY8qc47uy5crVWVdVDaqQ1t_a4CoAAn8IAALt21BWEZ_BGuXFXsQtBA&caption=How to use The Telegram File Bot Tutorial ☝️☝️☝️☝️");
+    file_get_contents("https://api.telegram.org/bot$token/sendDocument?chat_id=$user_id&document=CgACAgUAAxkBAAO_Y8qi5fCdFn7KaRLNryHJUIfeFhwAAr4KAALMzVBWjYOzo1u9vH0tBA&caption=How to use The Telegram File Bot Tutorial ☝️☝️☝️☝️");
 } elseif ($file_type == "file_id" && !empty($new_file_id)) {
     file_get_contents("https://api.telegram.org/bot$token/sendDocument?chat_id=$user_id&document=$new_file_id");
 } elseif ($file_type == "document" && !empty($new_file_id)) {
