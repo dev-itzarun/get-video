@@ -1,5 +1,7 @@
 <?php
 
+include "connect.php";
+
 $input = file_get_contents("php://input");
 
 $input_data = json_decode($input, true);
@@ -15,6 +17,17 @@ $user_id = $input_data["message"]['chat']['id'];
 $user_first_name = $input_data["message"]['chat']['first_name'];
 
 $user_last_name = $input_data["message"]['chat']['last_name'];
+
+$sql2 = "SELECT * FROM telegramfilesbot WHERE userid ='$user_id' ";
+$result2 = $conn->query($sql2);
+
+$userscount = mysqli_num_rows($result2);
+
+if ($result2->num_rows > 0) {
+    $isavailable = "true";
+} else {
+    $isavailable = "false";
+}
 
 if (!empty($input_data["message"]['document']['file_id'])) {
     $get_file_id = $input_data["message"]['document']['file_id'];
@@ -40,13 +53,21 @@ if (!empty($file_type) && !empty($get_file_id)) {
 }
 
 if ($user_message == "/start") {
-    $message_encode = "Welcome $user_first_name $user_last_name 😍 
-    \n\n This Bot Help You to get a Telegram Video / Document By File-ID.😊
-    \n\n Send a Video / Document File ID Now 
-    \n\n Ex File-id : <code>BAACAgUAAxkBAAN3Y8W9YOnnXlK-UHX1-iR2HFNtYBMAAiEKAAIWmilWybHvnxeIHc0tBA</code>
-    \n\n Contact Developer to Report Any Issue : @dev_itsarun";
-    $message = urlencode($message_encode);
-    file_get_contents("https://api.telegram.org/bot$token/sendMessage?chat_id=$user_id&text=$message&parse_mode=HTML&disable_web_page_preview=TRUE");
+    if ($isavailable == "false") {
+        $sql2 = "INSERT INTO telegramfilesbot (userid) VALUES ($user_id)";
+
+        if ($conn->query($sql2) === TRUE) {
+
+            $message_encode = "Welcome $user_first_name $user_last_name 😍";
+            $message = urlencode($message_encode);
+            file_get_contents("https://api.telegram.org/bot$token/sendMessage?chat_id=$user_id&text=$message&parse_mode=HTML&disable_web_page_preview=TRUE");
+        } else {
+
+            $message_encode = "Welcome Again $user_first_name $user_last_name 😍";
+            $message = urlencode($message_encode);
+            file_get_contents("https://api.telegram.org/bot$token/sendMessage?chat_id=$user_id&text=$message&parse_mode=HTML&disable_web_page_preview=TRUE");
+        }
+    }
 } elseif ($user_message == "/help") {
     $message_encode = "This bot will assist you in obtaining a Telegram video or document by file-ID.😊
     \n\n - This bot will only function only with the file id's obtained from it.
@@ -57,6 +78,10 @@ if ($user_message == "/start") {
     file_get_contents("https://api.telegram.org/bot$token/sendMessage?chat_id=$user_id&text=$message&parse_mode=HTML&disable_web_page_preview=TRUE");
 } elseif ($user_message == "/terms") {
     $message_encode = "The developer of this bot is not responsible for the information shared through it.";
+    $message = urlencode($message_encode);
+    file_get_contents("https://api.telegram.org/bot$token/sendMessage?chat_id=$user_id&text=$message&parse_mode=HTML&disable_web_page_preview=TRUE");
+} elseif ($user_message == "/stats" && !empty($userscount)) {
+    $message_encode = $userscount . " Users Using this Bot";
     $message = urlencode($message_encode);
     file_get_contents("https://api.telegram.org/bot$token/sendMessage?chat_id=$user_id&text=$message&parse_mode=HTML&disable_web_page_preview=TRUE");
 } elseif ($user_message == "/howtouse") {
